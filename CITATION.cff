@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "Si usas este trabajo, por favor cítalo como se indica a continuación."
+title: "Creador de Carpetas para la UNI"
+authors:
+  - family-names: "SM0NKY"
+    given-names: ""
+date-released: "2024-09-20"
+version: "1.0.0"
+repository-code: "https://github.com/SM0NKY/Prueba-Regresion-Lineal"
+doi: ""
