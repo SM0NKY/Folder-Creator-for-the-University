@@ -1,3 +1,6 @@
+`El Proyecto aún no esta listo` | `This proyect is not ready yet`
+
+
 Este es un proyecto para organizar archivos para la Universidad, permite crear de forma autonoma carpetas por c/semana asi 
 ahorrar tiempo en el proceso, sin la necesidad de contar las semanas ni perder la cuenta.
 
