@@ -9,3 +9,5 @@ crear_folders:object|Crear_Carpetas = Crear_Carpetas(dir_names.folder_names())
 
 crear_folders.c_folders()
 
+if __name__== "__main__":
+    Carpeta()
