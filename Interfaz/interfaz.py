@@ -1,8 +1,11 @@
 import customtkinter as ctk
 from tkinter import messagebox
-from typing import List, Dict
+from typing import List, Dict, Any
 import time
 import threading as th
+import re
+
+
 class Ventana():
     """ This class creates a window for the current program
     Atributes
@@ -14,17 +17,19 @@ class Ventana():
     ---------
     >>> Window:object = Ventana(title:str="Window", dim:str = "500x500")
     """
-    def __init__(self,title:str="File organizer",dim:str="500x600") -> object:
+    
+    def __init__(self,lista_objetos:List[object],title:str="File organizer",dim:str="500x600") -> object:
         self.ventana:object|ctk.CTk = ctk.CTk()
         self.dimensiones = self.ventana.geometry(dim)
         self.titulo = self.ventana.title(title)
         self.protocolo = self.ventana.protocol("WM_DELETE_WINDOW",self.close_window)
         self.comboboxes:Dict[str,object] = {}
-        self.boton_org:object = ctk.CTkButton(master = self.ventana, text = "Organizar Archivos", command = self.organize_files_create_files, font = ("Sans Seriff", 16) )
-        self.boton_crf:object = ctk.CTkButton(master = self.ventana, text = "Crear Carpetas", command = self.organize_files_create_files, font = ("Sans Seriff", 16) )
+        self.objects:List[object] = lista_objetos
+        self.boton_org:object = ctk.CTkButton(master = self.ventana, text = "Ejecutar", command = self.organize_files_create_files , font = ("Sans Seriff", 16) ) #Recordar en los botones no llamar a la funcion solo definirla ahi
         self.frame:object = ctk.CTkFrame(master= self.ventana)
         self.labels:Dict[int,object] = {}
-
+        self.pattern:str = r'(\d{1}){1}'
+    
     def close_window(self) -> None:
         """This method stops the window and "breaks the code"
         Parameters
@@ -69,10 +74,9 @@ class Ventana():
             self.comboboxes["1"].pack(pady = 10 )
             self.labels[2].pack(pady = 10)
             self.comboboxes["2"].pack(pady = 12, padx = 18)
-            self.boton_org.pack(pady= 12, padx = 18)
             self.labels[3].pack(pady = 10)
             self.comboboxes["3"].pack(pady = 10)
-            self.boton_crf.pack(pady= 12, padx = 18)
+            self.boton_org.pack(pady= 12, padx = 18)
 
             #Funktion, die die Hauptshleife startet# | #Funcion que inicia el bucle principal#
             self.ventana.mainloop() #Die funktion  muss am Ende plarziert werden# | #Esta funcion debe de estar colocada siempre al final#
@@ -118,11 +122,12 @@ class Ventana():
         {f"combobox.get()"}
         """
         try:
-            return self.comboboxes[combobox].get()
+            return self.comboboxes[f'{combobox}'].get()
         except Exception as e:
             print("Hubo un error al obtener el valor el combobox, el error es el siguiente", e)
+            raise e
 
-    def organize_files_create_files(self,ordenar_archivos:object,create_folders:object,calc_sem:object)-> None:
+    def organize_files_create_files(self)-> None:
         """It uses as a parameter an object to use it's methods, specifically the organize method for the files in the folders
         Parameters
         -----------
@@ -138,23 +143,46 @@ class Ventana():
         {None}
         """
         try:
-            semanas = calc_sem(self.combo_value(2) if type(self.combo_value(2)) == int else None)
-            semestre = self.combo_value(1) if type(self.combo_value) == int else None
-            period = self.combo_value(2) if type(self.combo_value(2)) == int else None
-            if semanas and semestre and period:
+            Weeks:List[str] = self.objects[2](self.combo_value(2) if type(self.combo_value(2)) == int else None)
+            Weeks.calcular_semanas()
+            semestre = self.combo_value(1) if self.combo_value(1) in [f"Semestre {x+1}" for x in range(12)] else None
+            period = 1 if self.combo_value(2) == "Enero - Junio" else 2
+
+            if Weeks and semestre and period:
+                
+                print(Weeks,semestre,period)
                 #Si son los datos correctos, se evalua los siguientes condicionales#
+                
                 if self.combo_value(3) == "Organizar Archivos":
-                    organize_F:object = ordenar_archivos(semester = semestre, periodo = period)
+                    #Aqui solo falta cambiar el semestre por el numero del semestre con re#
+                    organize_F:object = self.objects[0](semester = re.search(self.pattern,semestre).group(1), periodo = period)
                     directories:dict = organize_F.organize() #Contiene el directorio de la siguiente manera, dict  = {archivo: [directorio archivo, carpeta correspondiente]}#
-                    #-- Aqui colocar la clase que muestra la barra de carga --#
+                    
+                    progress:object = Barra_de_Progreso(0,len(list(directories.keys())))
+                    progress.progress_bar()
+                    progress.mostrar()
+                    
+                    for dir in list(directories.keys()):    
+                        
+                        time.sleep(0.5)
+                        print(dir,directories[dir][0],directories[dir][1])
+                        progress.progress_in_bar(list(directories.keys()).index(dir) + 1,len(list(directories.items())))
+                        organize_F.move_files(directories[dir][0],directories[dir][1])
+                    
+                    time.sleep(0.5)
+                    progress.ocultar()
+                    messagebox.askokcancel(message="Los archivos han sido ordenados correctamente")
+                
                 elif self.combo_value(3) == "Crear Carpetas":
-                    create_F:object = create_folders("")
-            
+                    
+                    create_F:object = self.objects[3](Weeks.semanas,period)
+                    create_f:object = self.objects[1](create_F.folder_names())
+                    create_f.c_foleders()
+                    messagebox.askokcancel(message="Las carpetas han sido creado correctamente")
+                
                 else: 
                     raise ValueError("Uno de los valores es incorrecto")
-            # -- Agregar un condicional para verificar que se ejecuta, de lo contrario mostrar una caja de texto --#
-            organize_F.organize()
-            create_F.create_folders()
+            
         
         except Exception as e:
             print("Hubo un error al organizar los archivos",e)
@@ -190,14 +218,14 @@ class Ventana():
 
 
 class Barra_de_Progreso():
-    def __init__(self) -> None:
+    def __init__(self,file_num:int, file_quant:int) -> None:
         self.ventana = ctk.CTk()
         self.withdraw = self.ventana.withdraw()
-        self.geometry = self.ventana.geometry('200x200')
+        self.geometry = self.ventana.geometry('400x200')
         self.title = self.ventana.title("Barra de progreso")
         self.protocolo = self.ventana.protocol("WM_DELETE_WINDOW", lambda : None)
-        self.items:List[object] = []
-    
+        self.items:List[Any] = []
+        self.label:object = ctk.CTkLabel(master= self.ventana,text = f"Archivo {file_num} de {file_quant}", font=("Sans Seriff", 20) )
     def mostrar(self) -> None:
         """ This method shows the window with the progressbar
         Parameters
@@ -214,6 +242,7 @@ class Barra_de_Progreso():
         {None} -> Shows the progressbar
         """    
         self.ventana.deiconify()
+        self.label.pack(pady = 12, padx = 18)
     
     def ocultar(self) -> None:
         """ This method hides the window with the progressbar
@@ -232,16 +261,33 @@ class Barra_de_Progreso():
         """
         self.ventana.withdraw()
     
-    def progress_bar(self) -> None:
-        self.items.append(ctk.CTkProgressBar(master= self.ventana,width=400, progress_color="Green"))
-
-    def progress_in_bar(self,value) -> None:
+    def progress_bar(self, number:int = 1) -> None:
+        """ This method creates the progress bar
+        """
+        try:
+            for x in range(number):
+                self.items.append(ctk.CTkProgressBar(master= self.ventana,width=400, progress_color="Green"))
+                self.items[x].place(x=20, y =20)
+                self.items[x].pack(pady = 10)
+        except Exception as e:
+            print("Hubo un error al mostrar la barra de progreso, en el metodo progress_bar en la clase Barra_de_Progresom el error es el siguiente",e)
+            raise ValueError("Error al definir barra/s de progreso")
         
-        self.items[1].set(value)
 
+    def progress_in_bar(self,number:int,quantity:int) -> None:
+        try:
+            self.items[0].set(number/quantity)
+            self.items[0].update_idletasks()
+            self.label.configure(text = f"Archivo {number} de {quantity}")#Cambia el texto del label en lugar de crear nuevos labels#
+        except Exception as e:
+            raise e
 
 if __name__ == "__main__":
-    Fenster:object = Ventana()
-    Fenster.open_window()
+    Zeigt_der_Fenster:object = Barra_de_Progreso(1,3) 
+    Zeigt_der_Fenster.progress_bar(1)
+    Zeigt_der_Fenster.mostrar()
+    
+    #Fenster:object = Ventana()
+    #Fenster.open_window()
 
 #Me falta agregar la barra de carga#

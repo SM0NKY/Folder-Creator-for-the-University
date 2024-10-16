@@ -1,1 +1,1 @@
-from .interfaz import Interfaz_principal
+from .interfaz import Ventana

@@ -53,7 +53,9 @@ class organize_files():
         ----------
         `None`
         
-        :return None:    
+        Return
+        ----------
+        `Dict[str,List[str]]`    
         """
         
         directorios:Dict[str,List[str]] = {}
@@ -68,14 +70,14 @@ class organize_files():
                         month:int = int(re.search(org.pattern,fecha).group(2))
                         date:int = int(re.search(org.pattern,fecha).group(3))
                         semana:str = org.week(date = [year, month, date])
-                        print(f"El archivo es {x},\n su directorio es {directorio} ,\n creado en la semana {semana} ,\n le corresponde a {os.path.join(org.directory,materia,semana)}")
+                        #print(f"El archivo es {x},\n su directorio es {directorio} ,\n creado en la semana {semana} ,\n le corresponde a {os.path.join(org.directory,materia,semana)}")
                         directorios[x] = [directorio,os.path.join(org.directory,materia,semana,x)] # Formato del diccionario {documento: directorio_i, directorio_f}
             return directorios
                         
                     
         except Exception as e:
-            print("Hubo un error en la clase organize_files del archivo ordenar achivos")
-            return {} 
+            print("Hubo un error en la clase organize_files del archivo ordenar achivos, el erroe es el siguiente",e)
+            raise e
             
 
 
