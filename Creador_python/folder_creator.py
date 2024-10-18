@@ -25,7 +25,13 @@ class Crear_Carpetas():
         
         Return 
         ----------
-        None:
+        `None`
+        
+        Example
+        ----------
+        >>> create:object = Crear_Carpetas(Atributes)
+        >>> create.c_folders()
+        {None} -> It makes new directories in case they don't exist
         
         """
         try:

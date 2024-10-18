@@ -10,6 +10,7 @@ class Ventana():
     """ This class creates a window for the current program
     Atributes
     ----------
+    :lista_objetos: `List[object]` -> Object used in specific functions to organize the files
     :title:`str` -> The title of the window
     :dim: `str` -> The dimension of the window 
     
@@ -32,14 +33,15 @@ class Ventana():
     
     def close_window(self) -> None:
         """This method stops the window and "breaks the code"
+        
         Parameters
         ----------
         `None`
 
         Example
         ----------
-        >>> window.close_window() -> messagebox -> "Seguro de que quieres cerrar la ventana"
-        
+        >>> window.close_window()
+        {None} -> messagebox ->  "Seguro de que quieres cerrar la ventana"
         """
     
         try:
@@ -51,14 +53,14 @@ class Ventana():
             raise e
     
     def open_window(self) -> None:
-        """ This method opens the window
+        """ This method opens the window, and shows the items in the window
         Atributes
         -----------
         `None`
 
         Example
         -----------
-        >>> window.open_window() -> Opens the window
+        >>> window.open_window() -> Opens the window and shows items
         """
         
         try:
@@ -92,6 +94,15 @@ class Ventana():
         :num_comb: `int` -> The number of comboboxes that will be created
         :comb_values: `List[List[str]]` -> The default text displayed on the comboboxes
         
+        Return
+        -----------
+        `None`
+
+        Example
+        -----------
+        >>> comboboxes = Ventana(atributes)
+        >>> comboboxes.Comboboxes(num_comb:int = 2, comb_values:List[List[str]] = [[Value_1...Value_n][Value_1...Value_n]]) 
+        {None} -> Creates the comboboxes that are going to be used
         """
         
         try:
@@ -119,7 +130,7 @@ class Ventana():
         Example
         ----------
         >>> combobox.combo_value(combobox:int = 1)
-        {f"combobox.get()"}
+        {f"combobox.get()"} -> Returns the value of the combox #1
         """
         try:
             return self.comboboxes[f'{combobox}'].get()
@@ -140,8 +151,9 @@ class Ventana():
         Example
         -----------
         >>> Ventana.organize_files(object_1():object)
-        {None}
+        {None} -> It organizes the files and shows the progress in a progressbar
         """
+        
         try:
             Weeks:List[str] = self.objects[2](self.combo_value(2) if type(self.combo_value(2)) == int else None)
             Weeks.calcular_semanas()
@@ -151,10 +163,11 @@ class Ventana():
             if Weeks and semestre and period:
                 
                 print(Weeks,semestre,period)
-                #Si son los datos correctos, se evalua los siguientes condicionales#
+                #Wenn die daten korrekt sind,die folgenden bedingungen werden ausgewertet # | #Si son los datos correctos, se evalua los siguientes condicionales#
                 
                 if self.combo_value(3) == "Organizar Archivos":
-                    #Aqui solo falta cambiar el semestre por el numero del semestre con re#
+                    # Hier wird das semester im string gesucht# | #Aqui se busca el semestre en el string #
+                    
                     organize_F:object = self.objects[0](semester = re.search(self.pattern,semestre).group(1), periodo = period)
                     directories:dict = organize_F.organize() #Contiene el directorio de la siguiente manera, dict  = {archivo: [directorio archivo, carpeta correspondiente]}#
                     
@@ -218,6 +231,16 @@ class Ventana():
 
 
 class Barra_de_Progreso():
+    """ This class creates a new window and displays the progressbar and a counter
+    Atributes
+    ----------
+    :file_num: `int` -> The file position of the total files => 1 of 23
+    :file_quant: `int` -> The total quantity of files
+
+    Example
+    ----------
+    >>> progress_bar:object = Barra_de_Progreso(file_num:int = 1, file_quant:int = 10)
+    """
     def __init__(self,file_num:int, file_quant:int) -> None:
         self.ventana = ctk.CTk()
         self.withdraw = self.ventana.withdraw()
@@ -262,7 +285,20 @@ class Barra_de_Progreso():
         self.ventana.withdraw()
     
     def progress_bar(self, number:int = 1) -> None:
-        """ This method creates the progress bar
+        """ This method creates and configures the progress bar
+        Parameters
+        ----------
+        :number: `int` -> The number of progress_bars that will be created
+        
+        Return
+        ----------
+        `None`
+
+        Example
+        ----------
+        >>> progress_barr:object = Barra_de_Progreso(Atributes)
+        >>> progress_bar.progress_bar(number:int = 1)
+        {None} -> It creates 1 progress_bar to display 
         """
         try:
             for x in range(number):
@@ -274,10 +310,27 @@ class Barra_de_Progreso():
             raise ValueError("Error al definir barra/s de progreso")
         
 
-    def progress_in_bar(self,number:int,quantity:int) -> None:
+    def progress_in_bar(self,number:int,quantity:int,progressbar_pos:int = 0) -> None:
+        """ It changes the progress in the progressbar
+        Parameters
+        ----------
+        :number: `int` -> The number of the position of the file on the total file quantity
+        :quantity: `int` -> The total files that will be transfered
+        :progressbar_pos: `int` -> The number of the list of the progress_bar that was created before
+
+        Return
+        ---------
+        `None`
+
+        Example
+        >>> progressbar:object = Barra_de_Progreso(Atributes)
+        >>> progressbar.progress_bar(Parameters)
+        >>> progressbar.progress_in_bar(number:int = 1, quantity = 3)
+        {None} -> Displays the progress in the progressbar
+        """
         try:
-            self.items[0].set(number/quantity)
-            self.items[0].update_idletasks()
+            self.items[progressbar_pos].set(number/quantity)
+            self.items[progressbar_pos].update_idletasks()
             self.label.configure(text = f"Archivo {number} de {quantity}")#Cambia el texto del label en lugar de crear nuevos labels#
         except Exception as e:
             raise e

@@ -22,11 +22,18 @@ class Carpeta():
         """ It calculates the quantity of weeks that passed since the start of the year cicle
         
         Parameters
-        ---------
-        self : `Carpeta` -> Attributes
+        ----------
+        `None`
 
-        :returns `List[str]`|`str`:
-        
+        Return
+        -----------
+        `List[str]`|`str`
+
+        Example
+        ----------
+        >>> folder:object = Carpeta(A)
+        >>> folder.calcular_semanas()
+        {"Semana 1"..."Semana n"} -> Returns the values of the quantity of weeks on the semester period 
         """
         try:
             dia_del_año:int = time.strptime(f"{self.inicio_del_ciclo[0]}-{self.inicio_del_ciclo[1]}-{self.inicio_del_ciclo[2]}","%Y-%m-%d").tm_yday

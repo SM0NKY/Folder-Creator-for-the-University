@@ -18,13 +18,21 @@ class organize_files():
         org.pattern = r'(\d{4}){1}-(\d{2}){1}-(\d{2}){1}' #Patron para buscar el mes en el siguiente texto "2024-09-09 15:21:58.208346" , en este caso seria el 09#
         org.periodo = periodo
     
-    def week(org,date:List[int],) -> str:
+    def week(org,date:List[int]) -> str:
         """ This method calculates the correspondent week between the school period
         Parameters
         ----------
         :date: `List[int]` -> [year, month, date] 
         
-        :return: `str` -> The week of the school period
+        Return
+        ----------
+        `str` -> The week of the school period
+        
+        Example
+        ----------
+        >>> orgfiles:object = organize_files(Atributes)
+        >>> orgfiles.week(date = [2024,12,25]) -> Format Year/Month/Day
+        {None} -> Returns the week of the school year of the date introduced
         """        
         # --Calcular primero el dia del año --#
         try:
@@ -38,6 +46,23 @@ class organize_files():
             raise e
 
     def move_files(org,ruta_i,ruta_f) -> None:
+        """ It moves the files from a place to another
+        Parameters
+        ----------
+        :ruta_i: `str` -> The current path of the file
+        :ruta_f: `str` -> The final or the path which the document is going to be transfered
+
+        Return
+        ----------
+        `None`
+
+        Example
+        ----------
+        >>> orgfiles:object = organize_files(Atributes)
+        >>> orgfiles.move_files(ruta_i = "C:\\documen.docx",ruta_f = "C\\folder\\document.docx")
+        {None} -> It moves the file from one path to another
+        """
+        
         try:
             if shutil.move(ruta_i,ruta_f):
                 print(f"Se ha movido el archivo el archivo de la ruta {ruta_i} a la ruta {ruta_f}")
@@ -56,6 +81,12 @@ class organize_files():
         Return
         ----------
         `Dict[str,List[str]]`    
+        
+        Example
+        ----------
+        >>> orgfiles:object = organize_files(Atributes)
+        >>> orgfiles.organize()
+        {document.docx: ["C\\document.docx","C:\\Semana 1\\document.docx"]} -> Returns the value of the dictionary with the files, their current path and their correspondent week path -> 
         """
         
         directorios:Dict[str,List[str]] = {}

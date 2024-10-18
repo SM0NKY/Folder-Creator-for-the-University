@@ -4,7 +4,6 @@ import os
 
 class dir_name():
     """ It creates the directories paths and checks in the folders if there is not any repeated folder
-    
     Atributes
     ----------
     :file_names: `list`
@@ -21,6 +20,12 @@ class dir_name():
         `None`
 
         :return List[str]:
+
+        Example
+        ----------
+        >>> directory_names:object = dir_name(Atributes)
+        >>> directory_names.folder_names()
+        {["C\\Folder x\\Semestre 1\\Materia\\Semana 1",...,"C\\Folder x\\Semestre n\\Materia\\Semana n"]} -> It returns the missing week folders for each class topic
         """    
         try:
             print(paths.path_uabc)
