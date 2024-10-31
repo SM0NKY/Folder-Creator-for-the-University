@@ -2,9 +2,34 @@ import customtkinter as ctk
 from tkinter import messagebox
 from typing import List, Dict, Any
 import time
-import threading as th
 import re
+import msvcrt as ms
 
+def verify_file_in_use(path:str) -> bool:
+    """This function checks if the value is in use
+    ----------
+    Parameters
+    :path:`str`
+
+    Return
+    ----------
+    `bool`
+
+    Example
+    ----------
+    >>> document_path = r"C\\document.docx"
+    >>> Using_file:bool = verify_file_in_use(document_path)
+    {True} if the file is in use | {False} if the file isn't in use
+    """
+    try:
+        with open(path, 'r') as file:
+            ms.locking(file.fileno(),ms.LK_NBLCK,1)
+            ms.locking(file.fileno(),ms.LK_UNLCK,1)
+        return False
+    except IOError:
+        return True
+    
+    None
 
 class Ventana():
     """ This class creates a window for the current program
@@ -171,20 +196,23 @@ class Ventana():
                     organize_F:object = self.objects[0](semester = re.search(self.pattern,semestre).group(1), periodo = period)
                     directories:dict = organize_F.organize() #Contiene el directorio de la siguiente manera, dict  = {archivo: [directorio archivo, carpeta correspondiente]}#
                     
-                    progress:object = Barra_de_Progreso(0,len(list(directories.keys())))
-                    progress.progress_bar()
-                    progress.mostrar()
                     
-                    for dir in list(directories.keys()):    
-                        
-                        time.sleep(0.5)
-                        print(dir,directories[dir][0],directories[dir][1])
-                        progress.progress_in_bar(list(directories.keys()).index(dir) + 1,len(list(directories.items())))
-                        organize_F.move_files(directories[dir][0],directories[dir][1])
-                    
+                    if not(verify_file_in_use(directories[x][0]) for x in list(directories.keys())):    
+                        progress:object = Barra_de_Progreso(0,len(list(directories.keys())))
+                        progress.progress_bar()
+                        progress.mostrar()
+
+                        for dir in list(directories.keys()):                    
+                            time.sleep(0.5)
+                            print(dir,directories[dir][0],directories[dir][1])
+                            organize_F.move_files(directories[dir][0],directories[dir][1])
+                            progress.progress_in_bar(list(directories.keys()).index(dir) + 1,len(list(directories.items())))
+                    else:
+                        raise ValueError("Error al organizar los archivos")                
+                                
                     time.sleep(0.5)
                     progress.ocultar()
-                    messagebox.askokcancel(message="Los archivos han sido ordenados correctamente")
+                    messagebox.askokcancel(message="Los archivos han sido ordenados")
                 
                 elif self.combo_value(3) == "Crear Carpetas":
                     
@@ -199,7 +227,7 @@ class Ventana():
         
         except Exception as e:
             print("Hubo un error al organizar los archivos",e)
-            messagebox.askokcancel("Uno de los valores es incorrecto")
+            messagebox.askokcancel(message="Verifica si los datos son correctos o si tienes un archivo abierto",title="Error")
 
 
     def die_beschriftungen(self, labels:int, text:List[str]) -> None:
@@ -344,3 +372,4 @@ if __name__ == "__main__":
     #Fenster.open_window()
 
 #Me falta agregar la barra de carga#
+
