@@ -5,31 +5,29 @@ import time
 import re
 import msvcrt as ms
 
-def verify_file_in_use(path:str) -> bool:
-    """This function checks if the value is in use
+def verify_file_in_use(path:str,counter:int) -> None:
+    """This function checks if the value is in use and adds to a counter an increment of 1 if there is any opened files
     ----------
     Parameters
     :path:`str`
-
+    :counter:`int`
+    
     Return
     ----------
-    `bool`
+    `None`
 
     Example
     ----------
     >>> document_path = r"C\\document.docx"
     >>> Using_file:bool = verify_file_in_use(document_path)
-    {True} if the file is in use | {False} if the file isn't in use
+    {counter += 1} if the file is in use | {None} if the file isn't in use
     """
     try:
         with open(path, 'r') as file:
             ms.locking(file.fileno(),ms.LK_NBLCK,1)
             ms.locking(file.fileno(),ms.LK_UNLCK,1)
-        return False
     except IOError:
-        return True
-    
-    None
+        counter += 1
 
 class Ventana():
     """ This class creates a window for the current program
@@ -185,6 +183,8 @@ class Ventana():
             semestre = self.combo_value(1) if self.combo_value(1) in [f"Semestre {x+1}" for x in range(12)] else None
             period = 1 if self.combo_value(2) == "Enero - Junio" else 2
 
+            
+
             if Weeks and semestre and period:
                 
                 print(Weeks,semestre,period)
@@ -196,8 +196,13 @@ class Ventana():
                     organize_F:object = self.objects[0](semester = re.search(self.pattern,semestre).group(1), periodo = period)
                     directories:dict = organize_F.organize() #Contiene el directorio de la siguiente manera, dict  = {archivo: [directorio archivo, carpeta correspondiente]}#
                     
-                    
-                    if not(verify_file_in_use(directories[x][0]) for x in list(directories.keys())):    
+                    opened_files:int = 0
+                    for x in list(directories.keys()):
+                        verify_file_in_use(directories[x][0],counter=opened_files)
+
+                    if opened_files == 0:    
+                        print(directories)
+                        
                         progress:object = Barra_de_Progreso(0,len(list(directories.keys())))
                         progress.progress_bar()
                         progress.mostrar()
