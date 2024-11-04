@@ -10,6 +10,8 @@ C://Carpeta//Semestre 1//Materia 1
 y debes seleccionar solo
 C://Carpeta
 
+Cabe añadir que las carpetas se crean en funcion del periodo de la uabc
+
 This is a project to organize files for the University, it allows you to create autonomously folders for each week, this way
 you save time in the process, without the need to count the weeks and without losing the count. Additionally it allows to organize the files
 automatically with a button, in a folder, in the correspondent week of creation of the file.
