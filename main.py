@@ -31,3 +31,4 @@ def iniciar_interfaz() -> None:
 if __name__== "__main__":
     iniciar_interfaz()
 
+

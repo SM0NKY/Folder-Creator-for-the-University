@@ -31,25 +31,66 @@ def verify_file_in_use(path:str,counter:int) -> None:
     except IOError:
         counter += 1
 
-class Config:
-    def __init__(self):
-        self.filepth:str = "config.json"
+class Config():
+    """ This class loads the configuration files in the correspondent .json file
+    Atributes 
+    ----------
+    `None`
     
-    def load_config(self)-> str:
+    Example
+    ---------
+    >>> configuration:object|Config = Config()
+    {None}
+    """
+    
+    def __init__(self):
+        self.filepth:str = os.path.join(os.path.dirname(os.path.abspath(__file__)),"config.json")
+    
+    def load_config(self)-> str|None:
+        """ This function loads the directory of the configuration .json file
+        Parameters
+        ---------
+        `None`
+
+        Return
+        ----------
+        `str`
+
+        Example
+        ----------
+        >>> configuration:object|Config = Config()
+        >>> path:str = configuration.load_config()
+        >>> print(path)
+        {path}
+        """
         try:
-            with open(self.filepth,'r') as config:
-                configurarion:object = json.load(config)
-                return configurarion.get("directory")
+            with open(self.filepth, 'r') as config:
+                configuration:dict = json.load(config)
+                return configuration.get("directory")
         except FileNotFoundError:
             raise FileNotFoundError
 
     def new_directory(self,nuevo_directorio:str) -> None:
+        """ This function modifiies the .json file path
+        Parameters
+        ---------
+        :nuevo_directorio: `str`
+
+        Return
+        ---------
+        `None`
+
+        Example
+        ---------
+        >>> configuration:object|Config = Config()
+        >>> configuration.new_directory(nuevo_directorio = "C\\Carpeta")
+        {None} -> It defines the new path in the .json file
+        """
         try:
             with open(self.filepth,'w') as config:
                 json.dump({"directory":nuevo_directorio},config)
         except FileNotFoundError:
             raise FileNotFoundError
-
 
 
 class Ventana():
@@ -204,6 +245,7 @@ class Ventana():
         """
         
         try:
+            directorio_uabc:str = Config.load_config()
             Weeks:List[str] = self.objects[2](self.combo_value(2) if type(self.combo_value(2)) == int else None)
             Weeks.calcular_semanas()
             semestre = self.combo_value(1) if self.combo_value(1) in [f"Semestre {x+1}" for x in range(12)] else None
@@ -219,7 +261,7 @@ class Ventana():
                 if self.combo_value(3) == "Organizar Archivos":
                     # Hier wird das semester im string gesucht# | #Aqui se busca el semestre en el string #
                     
-                    organize_F:object = self.objects[0](semester = re.search(self.pattern,semestre).group(1), periodo = period)
+                    organize_F:object = self.objects[0](semester = re.search(self.pattern,semestre).group(1), periodo = period, dir = directorio_uabc)
                     directories:dict = organize_F.organize() #Contiene el directorio de la siguiente manera, dict  = {archivo: [directorio archivo, carpeta correspondiente]}#
                     
                     opened_files:int = 0
@@ -247,7 +289,7 @@ class Ventana():
                 
                 elif self.combo_value(3) == "Crear Carpetas":
                     
-                    create_F:object = self.objects[3](Weeks.semanas,period)
+                    create_F:object = self.objects[3](Weeks.semanas,period,dir_uabc = directorio_uabc)
                     create_f:object = self.objects[1](create_F.folder_names())
                     create_f.c_foleders()
                     messagebox.askokcancel(message="Las carpetas han sido creado correctamente")
@@ -261,8 +303,8 @@ class Ventana():
             messagebox.askokcancel(message="Verifica si los datos son correctos o si tienes un archivo abierto",title="Error")
 
     def define_default_path(self)-> None:
-        #Aqui debo de agregar otra nueva clase para configurar el directorio y guardarlo en un json#
-        None
+        ventana_configuracion:object = Change_default_path()
+        ventana_configuracion.mostrar()
 
     def die_beschriftungen(self, labels:int, text:List[str]) -> None:
         """ This method creates the necesary labels for the current program
@@ -311,6 +353,7 @@ class Barra_de_Progreso():
         self.protocolo = self.ventana.protocol("WM_DELETE_WINDOW", lambda : None)
         self.items:List[Any] = []
         self.label:object = ctk.CTkLabel(master= self.ventana,text = f"Archivo {file_num} de {file_quant}", font=("Sans Seriff", 20) )
+    
     def mostrar(self) -> None:
         """ This method shows the window with the progressbar
         Parameters
@@ -398,21 +441,96 @@ class Barra_de_Progreso():
             raise e
 
 class Change_default_path(ctk.CTk):
+    """ This class allows to change the configuration of the path, or see the current path that is being used
+    Atributes 
+    -----------
+    `None`
+
+    Example:
+    >>> configuration:object = Change_default_path()
+    {None}
+    """
     def __init__(self) -> object:
         super().__init__()
         self.geometry("300x300")
         self.title("Configuracion")
+        self.configuration:object|Config = Config()
+        self.label1:ctk.CTkLabel = ctk.CTkLabel(master= self, text= "El directorio a utilizar es:")
+        self.label2:ctk.CTkLabel = ctk.CTkLabel(master = self, text=self.configuration.load_config())
+        self.button1:ctk.CTkButton = ctk.CTkButton(master = self, command= self.define_folder, text= "Definir carpeta")
+        self.button2:ctk.CTkButton = ctk.CTkButton(master= self, command= self.ocultar, text= "Confirmar")
+    
+    def mostrar(self) -> None:
+        """ This shows the window in the screen
+        Parameters
+        ---------
+        `None`
 
+        Return
+        ---------
+        `None`
+
+        Example
+        >>> configuration:object = Change_default_path()
+        >>> configuration.mostrar()
+        {None} -> It shows the window in the screen 
+        """
+        self.deiconify()
+        self.label1.pack(padx = 16, pady = 20)
+        self.label2.pack(padx = 16, pady = 20)
+        self.button1.pack(padx = 16, pady = 20)
+        self.button2.pack(padx= 25, pady= 32)
+
+    def ocultar(self) -> None:
+        """ This withdraws the window from the screen
+        Paramters
+        ----------
+        `None`
+
+        Return
+        ----------
+        `None`
+
+        Example
+        ----------
+        >>> configuration:object = Change_default_path()
+        >>> configuration.ocultar()
+        {None} -> It withdraws the window
+        """
+        
+        self.withdraw()
+
+    def define_folder(self) -> str:
+        """ This function allows to define a new default folder
+        Parameters
+        ----------
+        `None`
+
+        Return 
+        ----------
+        `None`
+
+        Example
+        ----------
+        >>> configuration:object = Change_default_path()
+        >>> configuration.define_folder()
+        {None} -> It opens a window to select the folder to be used as default
+        """
+        global directory
+        directory = ctk.filedialog.askdirectory()
+        try:
+            if directory:
+                self.configuration.new_directory(directory)
+                self.label2.configure(text = self.configuration.load_config())
+        except Exception as e:
+            raise e 
+    
 
 
 
 if __name__ == "__main__":
-    Zeigt_der_Fenster:object = Barra_de_Progreso(1,3) 
-    Zeigt_der_Fenster.progress_bar(1)
-    Zeigt_der_Fenster.mostrar()
-    
-    #Fenster:object = Ventana()
-    #Fenster.open_window()
+    config_window: object = Change_default_path()
+    config_window.mostrar()
 
 #Me falta agregar la barra de carga#
 
