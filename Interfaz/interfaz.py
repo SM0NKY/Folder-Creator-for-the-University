@@ -4,6 +4,8 @@ from typing import List, Dict, Any
 import time
 import re
 import msvcrt as ms
+import json
+import os
 
 def verify_file_in_use(path:str,counter:int) -> None:
     """This function checks if the value is in use and adds to a counter an increment of 1 if there is any opened files
@@ -29,6 +31,27 @@ def verify_file_in_use(path:str,counter:int) -> None:
     except IOError:
         counter += 1
 
+class Config:
+    def __init__(self):
+        self.filepth:str = "config.json"
+    
+    def load_config(self)-> str:
+        try:
+            with open(self.filepth,'r') as config:
+                configurarion:object = json.load(config)
+                return configurarion.get("directory")
+        except FileNotFoundError:
+            raise FileNotFoundError
+
+    def new_directory(self,nuevo_directorio:str) -> None:
+        try:
+            with open(self.filepth,'w') as config:
+                json.dump({"directory":nuevo_directorio},config)
+        except FileNotFoundError:
+            raise FileNotFoundError
+
+
+
 class Ventana():
     """ This class creates a window for the current program
     Atributes
@@ -42,7 +65,7 @@ class Ventana():
     >>> Window:object = Ventana(title:str="Window", dim:str = "500x500")
     """
     
-    def __init__(self,lista_objetos:List[object],title:str="File organizer",dim:str="500x600") -> object:
+    def __init__(self,lista_objetos:List[object],title:str="File organizer",dim:str="600x700") -> object:
         self.ventana:object|ctk.CTk = ctk.CTk()
         self.dimensiones = self.ventana.geometry(dim)
         self.titulo = self.ventana.title(title)
@@ -50,6 +73,7 @@ class Ventana():
         self.comboboxes:Dict[str,object] = {}
         self.objects:List[object] = lista_objetos
         self.boton_org:object = ctk.CTkButton(master = self.ventana, text = "Ejecutar", command = self.organize_files_create_files , font = ("Sans Seriff", 16) ) #Recordar en los botones no llamar a la funcion solo definirla ahi
+        self.boton_conf:object = ctk.CTkButton(master= self.ventana, text= "Ajustes", command= self.define_default_path, font= ("Sans Serif", 12))
         self.frame:object = ctk.CTkFrame(master= self.ventana)
         self.labels:Dict[int,object] = {}
         self.pattern:str = r'(\d{1}){1}'
@@ -94,6 +118,8 @@ class Ventana():
             #Funktion, die die beschriftungen zuweist # | Funcion que asigna los valores a los labels
             self.die_beschriftungen(3,["Introduzca el numero del semestre","Seleccione el periodo escolar","Acción"])
             
+            #Agregar la pestaña de configuración#
+            self.boton_conf.pack(side = "top",anchor="w",pady=16,padx=18)
             #Funktion, die schaltflächen, die comboboxen und beschriftungen zeigt # | # Funcion que muestra los botones, los comboboxes y los labels#
             self.labels[1].pack(pady = 10 )
             self.comboboxes["1"].pack(pady = 10 )
@@ -234,6 +260,9 @@ class Ventana():
             print("Hubo un error al organizar los archivos",e)
             messagebox.askokcancel(message="Verifica si los datos son correctos o si tienes un archivo abierto",title="Error")
 
+    def define_default_path(self)-> None:
+        #Aqui debo de agregar otra nueva clase para configurar el directorio y guardarlo en un json#
+        None
 
     def die_beschriftungen(self, labels:int, text:List[str]) -> None:
         """ This method creates the necesary labels for the current program
@@ -274,7 +303,7 @@ class Barra_de_Progreso():
     ----------
     >>> progress_bar:object = Barra_de_Progreso(file_num:int = 1, file_quant:int = 10)
     """
-    def __init__(self,file_num:int, file_quant:int) -> None:
+    def __init__(self,file_num:int, file_quant:int) -> object:
         self.ventana = ctk.CTk()
         self.withdraw = self.ventana.withdraw()
         self.geometry = self.ventana.geometry('400x200')
@@ -367,6 +396,15 @@ class Barra_de_Progreso():
             self.label.configure(text = f"Archivo {number} de {quantity}")#Cambia el texto del label en lugar de crear nuevos labels#
         except Exception as e:
             raise e
+
+class Change_default_path(ctk.CTk):
+    def __init__(self) -> object:
+        super().__init__()
+        self.geometry("300x300")
+        self.title("Configuracion")
+
+
+
 
 if __name__ == "__main__":
     Zeigt_der_Fenster:object = Barra_de_Progreso(1,3) 
