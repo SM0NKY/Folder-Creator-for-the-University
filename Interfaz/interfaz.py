@@ -245,7 +245,8 @@ class Ventana():
         """
         
         try:
-            directorio_uabc:str = Config.load_config()
+            config:object = Config()
+            directorio_uabc:str = config.load_config()
             Weeks:List[str] = self.objects[2](self.combo_value(2) if type(self.combo_value(2)) == int else None)
             Weeks.calcular_semanas()
             semestre = self.combo_value(1) if self.combo_value(1) in [f"Semestre {x+1}" for x in range(12)] else None
@@ -261,15 +262,15 @@ class Ventana():
                 if self.combo_value(3) == "Organizar Archivos":
                     # Hier wird das semester im string gesucht# | #Aqui se busca el semestre en el string #
                     
-                    organize_F:object = self.objects[0](semester = re.search(self.pattern,semestre).group(1), periodo = period, dir = directorio_uabc)
+                    organize_F:object = self.objects[0](semester = semestre, periodo = period, dir = directorio_uabc)
                     directories:dict = organize_F.organize() #Contiene el directorio de la siguiente manera, dict  = {archivo: [directorio archivo, carpeta correspondiente]}#
+                    
                     
                     opened_files:int = 0
                     for x in list(directories.keys()):
                         verify_file_in_use(directories[x][0],counter=opened_files)
 
-                    if opened_files == 0:    
-                        print(directories)
+                    if opened_files == 0 and directories:    
                         
                         progress:object = Barra_de_Progreso(0,len(list(directories.keys())))
                         progress.progress_bar()
@@ -277,21 +278,23 @@ class Ventana():
 
                         for dir in list(directories.keys()):                    
                             time.sleep(0.5)
-                            print(dir,directories[dir][0],directories[dir][1])
                             organize_F.move_files(directories[dir][0],directories[dir][1])
                             progress.progress_in_bar(list(directories.keys()).index(dir) + 1,len(list(directories.items())))
-                    else:
+                    
+                        time.sleep(0.5)
+                        progress.ocultar()
+                        messagebox.askokcancel(message="Los archivos han sido ordenados")
+
+                    elif directories:
                         raise ValueError("Error al organizar los archivos")                
-                                
-                    time.sleep(0.5)
-                    progress.ocultar()
-                    messagebox.askokcancel(message="Los archivos han sido ordenados")
+                    else:
+                        messagebox.askokcancel(message="Los archivos han sido ordenados")          
                 
                 elif self.combo_value(3) == "Crear Carpetas":
                     
-                    create_F:object = self.objects[3](Weeks.semanas,period,dir_uabc = directorio_uabc)
+                    create_F:object = self.objects[3](Weeks.semanas,semestre,dir_uabc = directorio_uabc)
                     create_f:object = self.objects[1](create_F.folder_names())
-                    create_f.c_foleders()
+                    create_f.c_folders()
                     messagebox.askokcancel(message="Las carpetas han sido creado correctamente")
                 
                 else: 
@@ -300,7 +303,7 @@ class Ventana():
         
         except Exception as e:
             print("Hubo un error al organizar los archivos",e)
-            messagebox.askokcancel(message="Verifica si los datos son correctos o si tienes un archivo abierto",title="Error")
+            messagebox.askokcancel(message="Verifica si los datos son correctos o si tienes un archivo abierto y si es el formato de directorio correspondiente",title="Error")
 
     def define_default_path(self)-> None:
         ventana_configuracion:object = Change_default_path()
@@ -520,7 +523,8 @@ class Change_default_path(ctk.CTk):
         directory = ctk.filedialog.askdirectory()
         try:
             if directory:
-                self.configuration.new_directory(directory)
+                
+                self.configuration.new_directory(os.path.normpath(directory))
                 self.label2.configure(text = self.configuration.load_config())
         except Exception as e:
             raise e 

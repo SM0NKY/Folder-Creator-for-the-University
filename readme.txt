@@ -7,6 +7,8 @@ ahorrando tiempo en el proceso, sin la necesidad de contar las semanas ni perder
 He añadido la opcion para utilizar una carepta personalizada para que se pueda usar con facilidad, el directorio debe de ser de la siguiente manera
 C://Carpeta//Semestre 1//Materia 1
 ""           Semestre N//Materia N
+y debes seleccionar solo
+C://Carpeta
 
 This is a project to organize files for the University, it allows you to create autonomously folders for each week, this way
 you save time in the process, without the need to count the weeks and without losing the count. Additionally it allows to organize the files

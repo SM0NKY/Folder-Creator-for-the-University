@@ -1,6 +1,7 @@
 import time as tm
 from typing import List
 import os
+import re
 
 class dir_name():
     """ It creates the directories paths and checks in the folders if there is not any repeated folder
@@ -11,7 +12,8 @@ class dir_name():
     :dir_uabc: `str`
     """
     def __init__(paths, file_names:List[str],semester:int,dir_uabc:str = "C:\\UABC"):
-        paths.lista_folders:List[str] = file_names ; paths.path_uabc:str = os.path.join(dir_uabc,f"Semestre {semester}"); paths.directories:List[str] = [] 
+        
+        paths.lista_folders:List[str] = file_names ; paths.path_uabc:str = os.path.join(dir_uabc,f"{semester}"); paths.directories:List[str] = [] 
 
     def folder_names(paths) -> List[str]:
         """ It creates the correspondent folder names for each subject and week
@@ -38,7 +40,7 @@ class dir_name():
                         paths.directories.append(new_dict) #-- Crea la carpeta con el siguiente formato C://UABC//Semestre x//Materia//Semana x --#
             return paths.directories
         except Exception as e:
-            print("Hubo un error, en la clase_dir name del archivo, en el archivo nombres_directorios")
+            print("Hubo un error, en la dir_name del archivo, en el archivo nombres_directorios")
             return []
             
 
