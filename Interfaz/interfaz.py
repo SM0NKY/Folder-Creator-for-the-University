@@ -299,6 +299,8 @@ class Ventana():
                 
                 else: 
                     raise ValueError("Uno de los valores es incorrecto")
+                    
+
             
         
         except Exception as e:
