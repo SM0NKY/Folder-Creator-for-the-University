@@ -299,9 +299,13 @@ class Ventana():
                 
                 else: 
                     raise ValueError("Uno de los valores es incorrecto")
+                    
+
             
         
         except Exception as e:
+            if progress:
+                progress.ocultar()
             print("Hubo un error al organizar los archivos",e)
             messagebox.askokcancel(message="Verifica si los datos son correctos o si tienes un archivo abierto y si es el formato de directorio correspondiente",title="Error")
 
