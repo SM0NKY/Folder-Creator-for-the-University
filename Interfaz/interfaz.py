@@ -6,6 +6,7 @@ import re
 import msvcrt as ms
 import json
 import os
+import sys
 
 def verify_file_in_use(path:str,counter:int) -> None:
     """This function checks if the value is in use and adds to a counter an increment of 1 if there is any opened files
@@ -133,9 +134,9 @@ class Ventana():
         """
     
         try:
-            if messagebox.askyesno(message="Estas seguro de que quieres cerrar la ventana"):
-                self.ventana.destroy()
-                
+            if messagebox.askyesno(message="Estas seguro de que quieres cerrar la ventana"): 
+                sys.exit()
+                #Here add the destroy button for other classes#
         except Exception as e:
             print("Hubo un error al cerrar la ventana, el error es el siguiente",e)
             raise e
@@ -337,7 +338,6 @@ class Ventana():
         except Exception as e:
             print("Hubo un error en la funcion die beschriftungen para definir el label, el error es el siguiente", e )
             raise e 
-
 
 class Barra_de_Progreso():
     """ This class creates a new window and displays the progressbar and a counter
