@@ -42,10 +42,12 @@ class Main_Window(ctk.CTk):
         def deco(func:Callable[...,Any]) -> Callable[...,Any]:
             def wr(self,*args,**kwargs) -> Any:
                 try:
-                    if self.settings.showed:
+                    if not self.settings.showed:
                         return func(self,*args,**kwargs)
                     else:
-                        messagebox.askokcancel("Ventana Abierta", text = "Porfavor cierra la ventana secundaria")
+                        pass
+                        messagebox.askokcancel(title= "Ventana Abierta", message = "Porfavor cierra la ventana secundaria")
+
                 except Exception as e:
                     print(f"{message}:{e}, en la funcion {func.__name__}")
                     raise e
