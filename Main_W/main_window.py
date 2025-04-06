@@ -26,6 +26,8 @@ class Main_Window(ctk.CTk):
         #Aqui se agregan los objetos correspondientes a la ventana
         self.label1:object|ctk.CTkLabel = ctk.CTkLabel(master= self, text= "Para organizar los archivos, confirma tu directorio en la configuración",font= ("Sans Seriff", 16))
         self.button1:object|ctk.CTkButton = ctk.CTkButton(master= self, text="Configuración", font=("Sans Seriff", 16), command= self.open_s)
+        
+
 
     def exceptions(message:Literal["Error al mostrar la ventana",""]) -> None:
         def deco(func:Callable[...,Any]) -> Any:
